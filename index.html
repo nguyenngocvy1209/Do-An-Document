@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BookStore - Tất cả sản phẩm</title>
+    <link rel="stylesheet" href="./css/styles.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">BookStore</div>
+            <div class="nav-links">
+                <a href="index.html" aria-label="Trang chủ">Trang chủ</a>
+                <a href="products.html" aria-label="Sản phẩm">Sản phẩm</a>
+                <div class="search-bar">
+                    <input type="text" id="searchInput" placeholder="Tìm kiếm tài liệu..." aria-label="Tìm kiếm sản phẩm">
+                    <button onclick="searchProducts()" aria-label="Tìm kiếm">Tìm</button>
+                </div>
+                <div id="userSection">
+                    <a href="#" id="loginBtn" aria-label="Đăng nhập">Đăng nhập</a>
+                    <a href="#" id="registerBtn" aria-label="Đăng ký">Đăng ký</a>
+                </div>
+                <a href="cart.html" id="cartBtn" aria-label="Giỏ hàng">Giỏ hàng (<span id="cartCount">0</span>)</a>
+            </div>
+        </nav>
+    </header>
+
+    <div class="container">
+        <!-- Banner quảng cáo -->
+        <section class="banner">
+            <div class="banner-content" onclick="showBannerDetails()">
+                <h2>Siêu ưu đãi tháng 5 - Giảm đến 30%!</h2>
+                <p>Mua sắm ngay để nhận quà tặng hấp dẫn!</p>
+                <button aria-label="Xem chi tiết ưu đãi">Xem ngay</button>
+            </div>
+        </section>
+
+        <!-- Danh mục nổi bật -->
+        <section class="categories">
+            <h2>Danh mục nổi bật</h2>
+            <div class="category-items" id="categoryItems"></div>
+        </section>
+
+        <!-- Phần ưu đãi tháng -->
+        <section class="monthly-deals">
+            <h2>Ưu đãi tháng 5</h2>
+            <div class="deals" id="monthlyDeals"></div>
+        </section>
+
+        <!-- Phần sản phẩm nổi bật -->
+        <section class="featured-products">
+            <h2>Sản phẩm nổi bật</h2>
+            <div class="products" id="featuredProducts"></div>
+        </section>
+
+        <!-- Phần khuyến mãi theo mùa -->
+        <section class="seasonal-offers">
+            <h2>Khuyến mãi Back-to-School</h2>
+            <p>Thời gian còn lại: <span id="countdown"></span></p>
+            <div class="products" id="seasonalOffers"></div>
+        </section>
+
+        <!-- Phần tất cả sản phẩm -->
+        <h2>Tất cả sản phẩm</h2>
+        <div class="filters">
+            <select id="categoryFilter" onchange="filterProducts()" aria-label="Lọc theo danh mục">
+                <option value="all">Tất cả danh mục</option>
+                <option value="Lập trình">Lập trình</option>
+                <option value="Báo cáo">Báo cáo</option>
+                <option value="Đồ án">Đồ án</option>
+                <option value="Ôn thi">Ôn thi</option>
+                <option value="Khoa học dữ liệu">Khoa học dữ liệu</option>
+            </select>
+            <select id="sortFilter" onchange="sortProducts()" aria-label="Sắp xếp sản phẩm">
+                <option value="name-asc">Tên (A-Z)</option>
+                <option value="price-asc">Giá (Thấp - Cao)</option>
+                <option value="price-desc">Giá (Cao - Thấp)</option>
+            </select>
+            <button onclick="showDiscountedOnly()" aria-label="Chỉ hiển thị giảm giá">Chỉ hiển thị giảm giá</button>
+            <button onclick="resetFilters()" aria-label="Xóa bộ lọc">Xóa bộ lọc</button>
+        </div>
+
+        <div class="products" id="products"></div>
+        <div class="pagination" id="pagination"></div>
+
+        <!-- Phần khách hàng nói gì -->
+        <section class="testimonials">
+            <h2>Khách hàng nói gì</h2>
+            <div class="testimonial-carousel">
+                <button class="carousel-prev" onclick="prevTestimonial()" aria-label="Đánh giá trước">❮</button>
+                <div class="testimonial-items" id="testimonialItems"></div>
+                <button class="carousel-next" onclick="nextTestimonial()" aria-label="Đánh giá tiếp theo">❯</button>
+            </div>
+        </section>
+
+        <!-- Phần tin tức -->
+        <section class="news">
+            <h2>Tin tức mới</h2>
+            <div class="news-items" id="newsItems"></div>
+        </section>
+    </div>
+
+    <!-- Login Modal -->
+    <div id="loginModal" class="modal" role="dialog" aria-labelledby="loginModalLabel">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('loginModal')" aria-label="Đóng">×</span>
+            <h2 id="loginModalLabel">Đăng nhập</h2>
+            <form id="loginForm">
+                <label for="loginEmail">Email</label>
+                <input type="email" id="loginEmail" placeholder="Email" required aria-label="Email">
+                <label for="loginPassword">Mật khẩu</label>
+                <input type="password" id="loginPassword" placeholder="Mật khẩu" required aria-label="Mật khẩu">
+                <button type="submit" aria-label="Đăng nhập">Đăng nhập</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Register Modal -->
+    <div id="registerModal" class="modal" role="dialog" aria-labelledby="registerModalLabel">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('registerModal')" aria-label="Đóng">×</span>
+            <h2 id="registerModalLabel">Đăng ký</h2>
+            <form id="registerForm">
+                <label for="registerName">Họ và tên</label>
+                <input type="text" id="registerName" placeholder="Họ và tên" required aria-label="Họ và tên">
+                <label for="registerEmail">Email</label>
+                <input type="email" id="registerEmail" placeholder="Email" required aria-label="Email">
+                <label for="registerPassword">Mật khẩu</label>
+                <input type="password" id="registerPassword" placeholder="Mật khẩu" required aria-label="Mật khẩu">
+                <button type="submit" aria-label="Đăng ký">Đăng ký</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- News Modal -->
+    <div id="newsModal" class="modal" role="dialog" aria-labelledby="newsModalLabel">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('newsModal')" aria-label="Đóng">×</span>
+            <h2 id="newsModalLabel">Tin tức</h2>
+            <div id="newsContent"></div>
+        </div>
+    </div>
+
+    <!-- All Reviews Modal -->
+    <div id="allReviewsModal" class="modal" role="dialog" aria-labelledby="allReviewsModalLabel">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('allReviewsModal')" aria-label="Đóng">×</span>
+            <h2 id="allReviewsModalLabel">Tất cả đánh giá</h2>
+            <div id="allReviewsContent"></div>
+        </div>
+    </div>
+
+    <footer>
+        <p>© 2025 BookStore. All rights reserved.</p>
+    </footer>
+
+    <script src="./js/script.js"></script>
+</body>
+</html>

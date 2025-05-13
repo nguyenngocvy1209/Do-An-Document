@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BookStore - Sản phẩm</title>
+    <link rel="stylesheet" href="./css/styles.css">
+    <!-- Thêm Chart.js cho biểu đồ -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">BookStore</div>
+            <div class="nav-links">
+                <a href="index.html" aria-label="Trang chủ">Trang chủ</a>
+                <a href="products.html" aria-label="Sản phẩm">Sản phẩm</a>
+                <div class="search-bar">
+                    <input type="text" id="searchInput" placeholder="Tìm kiếm tài liệu..." aria-label="Tìm kiếm sản phẩm" oninput="showSearchSuggestions()">
+                    <div id="searchSuggestions" class="suggestions"></div>
+                    <button onclick="searchProducts()" aria-label="Tìm kiếm">Tìm</button>
+                </div>
+                <div id="userSection">
+                    <a href="#" id="loginBtn" aria-label="Đăng nhập">Đăng nhập</a>
+                    <a href="#" id="registerBtn" aria-label="Đăng ký">Đăng ký</a>
+                </div>
+                <a href="cart.html" id="cartBtn" aria-label="Giỏ hàng">Giỏ hàng (<span id="cartCount">0</span>)</a>
+                <!-- Thêm nút so sánh sản phẩm -->
+                <a href="#" id="compareBtn" onclick="showCompareModal()" aria-label="So sánh sản phẩm">So sánh (<span id="compareCount">0</span>)</a>
+            </div>
+        </nav>
+    </header>
+
+    <div class="container">
+        <!-- Thêm carousel sản phẩm nổi bật -->
+        <section class="carousel-section">
+            <h2>Sản phẩm nổi bật</h2>
+            <div class="carousel" id="featuredCarousel"></div>
+            <button class="carousel-prev" onclick="prevCarousel()">❮</button>
+            <button class="carousel-next" onclick="nextCarousel()">❯</button>
+        </section>
+
+        <!-- Thêm đề xuất cá nhân hóa -->
+        <section id="personalizedRecommendations">
+            <h2>Đề xuất cho bạn</h2>
+            <div id="personalizedRecommendationsContent"></div>
+        </section>
+
+        <!-- Thêm biểu đồ thống kê sản phẩm -->
+        <section id="productStatistics">
+            <h2>Thống kê sản phẩm</h2>
+            <canvas id="productStatsChart"></canvas>
+        </section>
+
+        <h2>Tất cả sản phẩm</h2>
+        <div class="filters">
+            <select id="categoryFilter" onchange="filterProducts()" aria-label="Lọc theo danh mục">
+                <option value="all">Tất cả danh mục</option>
+                <option value="Lập trình">Lập trình</option>
+                <option value="Báo cáo">Báo cáo</option>
+                <option value="Đồ án">Đồ án</option>
+                <option value="Ôn thi">Ôn thi</option>
+                <option value="Khoa học dữ liệu">Khoa học dữ liệu</option>
+            </select>
+            <select id="sortFilter" onchange="sortProducts()" aria-label="Sắp xếp sản phẩm">
+                <option value="name-asc">Tên (A-Z)</option>
+                <option value="price-asc">Giá (Thấp - Cao)</option>
+                <option value="price-desc">Giá (Cao - Thấp)</option>
+            </select>
+            <button onclick="showDiscountedOnly()" aria-label="Chỉ hiển thị giảm giá">Chỉ hiển thị giảm giá</button>
+            <button onclick="resetFilters()" aria-label="Xóa bộ lọc">Xóa bộ lọc</button>
+        </div>
+
+        <div class="products" id="products"></div>
+        <div class="pagination" id="pagination"></div>
+    </div>
+
+    <!-- Login Modal -->
+    <div id="loginModal" class="modal" role="dialog" aria-labelledby="loginModalLabel">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('loginModal')" aria-label="Đóng">×</span>
+            <h2 id="loginModalLabel">Đăng nhập</h2>
+            <form id="loginForm">
+                <label for="loginEmail">Email</label>
+                <input type="email" id="loginEmail" placeholder="Email" required aria-label="Email">
+                <label for="loginPassword">Mật khẩu</label>
+                <input type="password" id="loginPassword" placeholder="Mật khẩu" required aria-label="Mật khẩu">
+                <button type="submit" aria-label="Đăng nhập">Đăng nhập</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Register Modal -->
+    <div id="registerModal" class="modal" role="dialog" aria-labelledby="registerModalLabel">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('registerModal')" aria-label="Đóng">×</span>
+            <h2 id="registerModalLabel">Đăng ký</h2>
+            <form id="registerForm">
+                <label for="registerName">Họ và tên</label>
+                <input type="text" id="registerName" placeholder="Họ và tên" required aria-label="Họ và tên">
+                <label for="registerEmail">Email</label>
+                <input type="email" id="registerEmail" placeholder="Email" required aria-label="Email">
+                <label for="registerPassword">Mật khẩu</label>
+                <input type="password" id="registerPassword" placeholder="Mật khẩu" required aria-label="Mật khẩu">
+                <button type="submit" aria-label="Đăng ký">Đăng ký</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Review Modal (Cập nhật để hỗ trợ đánh giá sao tương tác) -->
+    <div id="reviewModal" class="modal" role="dialog" aria-labelledby="reviewModalLabel">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('reviewModal')" aria-label="Đóng">×</span>
+            <h2 id="reviewModalLabel">Thêm đánh giá</h2>
+            <form id="reviewForm">
+                <label for="reviewName">Họ và tên</label>
+                <input type="text" id="reviewName" placeholder="Họ và tên" required aria-label="Họ và tên">
+                <label for="reviewRating">Đánh giá</label>
+                <div class="star-rating" id="starRating">
+                    <span class="star" data-value="1">★</span>
+                    <span class="star" data-value="2">★</span>
+                    <span class="star" data-value="3">★</span>
+                    <span class="star" data-value="4">★</span>
+                    <span class="star" data-value="5">★</span>
+                </div>
+                <input type="hidden" id="reviewRating" required aria-label="Đánh giá sao">
+                <label for="reviewComment">Bình luận</label>
+                <textarea id="reviewComment" placeholder="Bình luận" required aria-label="Bình luận"></textarea>
+                <button type="submit" aria-label="Gửi đánh giá">Gửi đánh giá</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- All Reviews Modal -->
+    <div id="allReviewsModal" class="modal" role="dialog" aria-labelledby="allReviewsModalLabel">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('allReviewsModal')" aria-label="Đóng">×</span>
+            <h2 id="allReviewsModalLabel">Tất cả đánh giá</h2>
+            <div id="allReviewsContent"></div>
+        </div>
+    </div>
+
+    <!-- Compare Modal -->
+    <div id="compareModal" class="modal" role="dialog" aria-labelledby="compareModalLabel">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('compareModal')" aria-label="Đóng">×</span>
+            <h2 id="compareModalLabel">So sánh sản phẩm</h2>
+            <div id="compareContent"></div>
+        </div>
+    </div>
+
+    <!-- Chat Widget -->
+    <div id="chatWidget" class="chat-widget">
+        <button onclick="toggleChat()" aria-label="Mở chat">💬</button>
+        <div id="chatContent" style="display: none;">
+            <div id="chatMessages"></div>
+            <input type="text" id="chatInput" placeholder="Nhập câu hỏi..." aria-label="Nhập câu hỏi">
+            <button onclick="sendChatMessage()" aria-label="Gửi tin nhắn">Gửi</button>
+        </div>
+    </div>
+
+    <footer>
+        <p>© 2025 BookStore. All rights reserved.</p>
+    </footer>
+
+    <script src="./js/script.js"></script>
+</body>
+</html>
