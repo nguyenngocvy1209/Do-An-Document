@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BookStore - Giỏ hàng</title>
     <link rel="stylesheet" href="./css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
     <header>
@@ -15,6 +16,7 @@
                 <a href="products.html" aria-label="Sản phẩm">Sản phẩm</a>
                 <div class="search-bar">
                     <input type="text" id="searchInput" placeholder="Tìm kiếm tài liệu..." aria-label="Tìm kiếm sản phẩm">
+                    <div id="searchSuggestions" class="search-suggestions"></div>
                     <button onclick="searchProducts()" aria-label="Tìm kiếm">Tìm</button>
                 </div>
                 <div id="userSection">
@@ -29,10 +31,18 @@
     <div class="container">
         <h2>Giỏ hàng</h2>
         <div class="cart" id="cart">
-            <div id="cartItems"></div>
-            <h3>Tổng cộng: <span id="cartTotal">0</span> VNĐ</h3>
-            <div class="checkout">
-                <button onclick="checkout()" aria-label="Thanh toán">Thanh toán</button>
+            <div class="cart-header">
+                <h3>Giỏ hàng của bạn</h3>
+                <p>(<span id="cartCount">0</span> sản phẩm)</p>
+            </div>
+            <div class="cart-items" id="cartItems"></div>
+            <div class="cart-footer">
+                <div class="cart-total">
+                    <h3>Tổng cộng: <span id="cartTotal">0</span> VNĐ</h3>
+                </div>
+                <div class="checkout">
+                    <button onclick="checkout()" aria-label="Thanh toán" class="checkout-btn">Thanh toán</button>
+                </div>
             </div>
         </div>
 
@@ -51,7 +61,7 @@
                         <option value="500000">500,000 VNĐ</option>
                     </select>
                     <div id="qrCodeContainer" style="display: none;">
-                        <img src="https://i.imgur.com/your_qr_code_url_here.jpg" alt="Mã QR BIDV - Nguyễn Ngọc Vy" class="qr-code">
+                        <img src="https://via.placeholder.com/200" alt="Mã QR BIDV - Nguyễn Ngọc Vy" class="qr-code">
                         <p>Sử dụng ứng dụng ngân hàng (VD: BIDV SmartBanking) để quét mã QR và nạp số tiền đã chọn.</p>
                         <button onclick="simulateQRPayment()" aria-label="Mô phỏng nạp tiền bằng QR">Nạp tiền (Mô phỏng)</button>
                     </div>
@@ -113,6 +123,89 @@
                 </select>
                 <button type="submit" aria-label="Xác nhận đơn hàng">Xác nhận đơn hàng</button>
             </form>
+        </div>
+    </div>
+
+    <!-- Profile Modal -->
+    <div id="profileModal" class="modal" role="dialog" aria-labelledby="profileModalLabel">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('profileModal')" aria-label="Đóng">×</span>
+            <h2 id="profileModalLabel">Thông tin tài khoản</h2>
+            <p><strong>Họ tên:</strong> <span id="profileName"></span></p>
+            <p><strong>Email:</strong> <span id="profileEmail"></span></p>
+            <p><strong>Số dư:</strong> <span id="profileWalletBalance"></span> VNĐ</p>
+            <button onclick="openUploadDocumentModal()" aria-label="Đăng tài liệu">Đăng tài liệu</button>
+            <button onclick="logout()" aria-label="Đăng xuất">Đăng xuất</button>
+        </div>
+    </div>
+
+    <!-- Upload Document Modal -->
+    <div id="uploadModal" class="modal" role="dialog" aria-labelledby="uploadModalLabel">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('uploadModal')" aria-label="Đóng">×</span>
+            <h2 id="uploadModalLabel">Đăng tài liệu</h2>
+            <form id="uploadDocumentForm">
+                <label for="documentName">Tên tài liệu</label>
+                <input type="text" id="documentName" placeholder="Tên tài liệu" required aria-label="Tên tài liệu">
+                <label for="documentCategory">Danh mục</label>
+                <select id="documentCategory" required aria-label="Danh mục tài liệu">
+                    <option value="">Chọn danh mục</option>
+                    <option value="Lập trình">Lập trình</option>
+                    <option value="Báo cáo">Báo cáo</option>
+                    <option value="Đồ án">Đồ án</option>
+                    <option value="Ôn thi">Ôn thi</option>
+                    <option value="Khoa học dữ liệu">Khoa học dữ liệu</option>
+                    <option value="Khoa học tự nhiên">Khoa học tự nhiên</option>
+                    <option value="Ngoại ngữ">Ngoại ngữ</option>
+                    <option value="Sách thiếu nhi">Sách thiếu nhi</option>
+                    <option value="Sách kinh tế">Sách kinh tế</option>
+                </select>
+                <label for="documentPrice">Giá (VNĐ)</label>
+                <input type="number" id="documentPrice" placeholder="Giá" required min="0" aria-label="Giá tài liệu">
+                <label for="documentDescription">Mô tả</label>
+                <textarea id="documentDescription" placeholder="Mô tả tài liệu" required aria-label="Mô tả tài liệu"></textarea>
+                <label for="documentImage">Hình ảnh</label>
+                <input type="file" id="documentImage" accept="image/*" required aria-label="Hình ảnh tài liệu">
+                <div id="imagePreview"></div>
+                <label for="documentFile">Tài liệu</label>
+                <input type="file" id="documentFile" accept=".pdf,.doc,.docx" required aria-label="File tài liệu">
+                <label for="documentDiscount">Giảm giá (%)</label>
+                <input type="number" id="documentDiscount" placeholder="Giảm giá" min="0" max="100" aria-label="Giảm giá">
+                <button type="submit" aria-label="Đăng tài liệu">Đăng tài liệu</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Review Modal -->
+    <div id="reviewModal" class="modal" role="dialog" aria-labelledby="reviewModalLabel">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('reviewModal')" aria-label="Đóng">×</span>
+            <h2 id="reviewModalLabel">Đánh giá sản phẩm</h2>
+            <form id="reviewForm">
+                <label for="reviewName">Tên</label>
+                <input type="text" id="reviewName" placeholder="Tên của bạn" required aria-label="Tên người đánh giá">
+                <label for="reviewRating">Đánh giá</label>
+                <div id="starRating" class="star-rating">
+                    <span class="star" data-value="1">★</span>
+                    <span class="star" data-value="2">★</span>
+                    <span class="star" data-value="3">★</span>
+                    <span class="star" data-value="4">★</span>
+                    <span class="star" data-value="5">★</span>
+                </div>
+                <input type="hidden" id="reviewRating" required aria-label="Điểm đánh giá">
+                <label for="reviewComment">Bình luận</label>
+                <textarea id="reviewComment" placeholder="Bình luận của bạn" required aria-label="Bình luận đánh giá"></textarea>
+                <button type="submit" aria-label="Gửi đánh giá">Gửi đánh giá</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- All Reviews Modal -->
+    <div id="allReviewsModal" class="modal" role="dialog" aria-labelledby="allReviewsModalLabel">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('allReviewsModal')" aria-label="Đóng">×</span>
+            <h2 id="allReviewsModalLabel">Tất cả đánh giá</h2>
+            <div id="allReviewsContent"></div>
         </div>
     </div>
 

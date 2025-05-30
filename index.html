@@ -27,6 +27,24 @@
     </header>
 
     <div class="container">
+        <!-- Sidebar -->
+        <aside id="sidebar" class="sidebar">
+            <button id="sidebarToggle" class="sidebar-toggle" onclick="toggleSidebar()" aria-label="Ẩn/Hiện danh mục">☰ Danh mục</button>
+            <h2>Danh mục</h2>
+            <ul class="category-list">
+                <li class="category-item" onclick="selectCategory('all')" aria-label="Tất cả danh mục">Tất cả danh mục</li>
+                <li class="category-item" onclick="selectCategory('Lập trình')" aria-label="Danh mục Lập trình">Lập trình</li>
+                <li class="category-item" onclick="selectCategory('Báo cáo')" aria-label="Danh mục Báo cáo">Báo cáo</li>
+                <li class="category-item" onclick="selectCategory('Đồ án')" aria-label="Danh mục Đồ án">Đồ án</li>
+                <li class="category-item" onclick="selectCategory('Ôn thi')" aria-label="Danh mục Ôn thi">Ôn thi</li>
+                <li class="category-item" onclick="selectCategory('Khoa học dữ liệu')" aria-label="Danh mục Khoa học dữ liệu">Khoa học dữ liệu</li>
+                <li class="category-item" onclick="selectCategory('Khoa học tự nhiên')" aria-label="Danh mục Khoa học tự nhiên">Khoa học tự nhiên</li>
+                <li class="category-item" onclick="selectCategory('Ngoại ngữ')" aria-label="Danh mục Ngoại ngữ">Ngoại ngữ</li>
+                <li class="category-item" onclick="selectCategory('Sách thiếu nhi')" aria-label="Danh mục Sách thiếu nhi">Sách thiếu nhi</li>
+                <li class="category-item" onclick="selectCategory('Sách kinh tế')" aria-label="Danh mục Sách kinh tế">Sách kinh tế</li>
+            </ul>
+        </aside>
+
         <!-- Banner quảng cáo -->
         <section class="banner">
             <div class="banner-content" onclick="showBannerDetails()">
@@ -34,12 +52,6 @@
                 <p>Mua sắm ngay để nhận quà tặng hấp dẫn!</p>
                 <button aria-label="Xem chi tiết ưu đãi">Xem ngay</button>
             </div>
-        </section>
-
-        <!-- Danh mục nổi bật -->
-        <section class="categories">
-            <h2>Danh mục nổi bật</h2>
-            <div class="category-items" id="categoryItems"></div>
         </section>
 
         <!-- Phần ưu đãi tháng -->
@@ -71,6 +83,10 @@
                 <option value="Đồ án">Đồ án</option>
                 <option value="Ôn thi">Ôn thi</option>
                 <option value="Khoa học dữ liệu">Khoa học dữ liệu</option>
+                <option value="Khoa học tự nhiên">Khoa học tự nhiên</option>
+                <option value="Ngoại ngữ">Ngoại ngữ</option>
+                <option value="Sách thiếu nhi">Sách thiếu nhi</option>
+                <option value="Sách kinh tế">Sách kinh tế</option>
             </select>
             <select id="sortFilter" onchange="sortProducts()" aria-label="Sắp xếp sản phẩm">
                 <option value="name-asc">Tên (A-Z)</option>
@@ -94,11 +110,63 @@
             </div>
         </section>
 
+        <!-- Modal thông tin cá nhân -->
+        <div id="profileModal" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="closeModal('profileModal')" aria-label="Đóng">×</span>
+                <h2>Thông tin cá nhân</h2>
+                <div id="profileContent">
+                    <p><strong>Họ tên:</strong> <span id="profileName"></span></p>
+                    <p><strong>Email:</strong> <span id="profileEmail"></span></p>
+                    <p><strong>Số dư ví:</strong> <span id="profileWalletBalance"></span> VNĐ</p>
+                </div>
+                <button onclick="openUploadDocumentModal()" aria-label="Đăng tài liệu">Đăng tài liệu</button>
+            </div>
+        </div>
+
+        <!-- Modal đăng tài liệu -->
+        <div id="uploadDocumentModal" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="closeModal('uploadDocumentModal')" aria-label="Đóng">×</span>
+                <h2>Đăng tài liệu</h2>
+                <form id="uploadDocumentForm">
+                    <label for="documentName">Tên tài liệu:</label>
+                    <input type="text" id="documentName" required>
+                    <label for="documentCategory">Danh mục:</label>
+                    <select id="documentCategory" required>
+                        <option value="" disabled selected>Chọn danh mục</option>
+                        ${categories.map(category => `<option value="${category.name}">${category.name}</option>`).join('')}
+                    </select>
+                    <label for="documentPrice">Giá (VNĐ):</label>
+                    <input type="number" id="documentPrice" required min="0">
+                    <label for="documentDescription">Mô tả:</label>
+                    <textarea id="documentDescription" required></textarea>
+                    <label for="documentImage">Hình ảnh tài liệu:</label>
+                    <input type="file" id="documentImage" accept="image/*" required>
+                    <div id="imagePreview" style="margin-top: 10px;"></div>
+                    <label for="documentFile">File tài liệu (PDF, Word, ...):</label>
+                    <input type="file" id="documentFile" accept=".pdf,.doc,.docx" required>
+                    <label for="documentDiscount">Giảm giá (%):</label>
+                    <input type="number" id="documentDiscount" min="0" max="100" value="0">
+                    <button type="submit" aria-label="Đăng tài liệu">Đăng</button>
+                </form>
+            </div>
+        </div>
+
         <!-- Phần tin tức -->
         <section class="news">
             <h2>Tin tức mới</h2>
             <div class="news-items" id="newsItems"></div>
         </section>
+
+        <!-- Product Details Modal -->
+        <div id="productDetailsModal" class="modal" role="dialog" aria-labelledby="productDetailsModalLabel">
+            <div class="modal-content">
+                <span class="close" onclick="closeModal('productDetailsModal')" aria-label="Đóng">×</span>
+                <h2 id="productDetailsModalLabel">Thông tin sản phẩm</h2>
+                <div id="productDetailsContent"></div>
+            </div>
+        </div>
     </div>
 
     <!-- Login Modal -->
@@ -148,6 +216,31 @@
             <span class="close" onclick="closeModal('allReviewsModal')" aria-label="Đóng">×</span>
             <h2 id="allReviewsModalLabel">Tất cả đánh giá</h2>
             <div id="allReviewsContent"></div>
+        </div>
+    </div>
+
+    <!-- Chat Widget -->
+    <div id="chatWidget" class="chat-widget">
+        <button id="chatToggleBtn" onclick="toggleChat()" aria-label="Mở/Đóng chat">
+            <svg class="chat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v10z" />
+            </svg>
+        </button>
+        <div id="chatContent" class="chat-content">
+            <div class="chat-header">
+                <h3>Chat Hỗ Trợ</h3>
+                <button class="chat-close" onclick="toggleChat()" aria-label="Đóng chat">×</button>
+            </div>
+            <div id="chatMessages" class="chat-messages"></div>
+            <div class="chat-input-container">
+                <input type="text" id="chatInput" placeholder="Nhập câu hỏi..." aria-label="Nhập câu hỏi">
+                <button onclick="sendChatMessage()" aria-label="Gửi tin nhắn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M22 2L11 13" />
+                        <path d="M22 2l-7 20-4-9-9-4 20-7z" />
+                    </svg>
+                </button>
+            </div>
         </div>
     </div>
 

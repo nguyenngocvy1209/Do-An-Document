@@ -5,87 +5,115 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BookStore - Sản phẩm</title>
     <link rel="stylesheet" href="./css/styles.css">
-    <!-- Thêm Chart.js cho biểu đồ -->
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Chart.js for product statistics -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
+    <!-- Sidebar -->
+    <div id="sidebar" class="sidebar" role="navigation" aria-label="Category navigation">
+        <div class="sidebar-header">
+            <h3>Danh mục</h3>
+            <button class="sidebar-toggle-btn" onclick="toggleSidebar()" aria-label="Toggle sidebar">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <ul id="categoryList" class="category-list">
+            <li class="category-item active" onclick="selectCategory('all')" aria-label="All categories">Tất cả danh mục</li>
+            <!-- Dynamically populated by JavaScript -->
+        </ul>
+    </div>
+
     <header>
         <nav>
             <div class="logo">BookStore</div>
             <div class="nav-links">
-                <a href="index.html" aria-label="Trang chủ">Trang chủ</a>
-                <a href="products.html" aria-label="Sản phẩm">Sản phẩm</a>
+                <button class="sidebar-toggle-btn" onclick="toggleSidebar()" aria-label="Open sidebar">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <a href="index.html" aria-label="Home">Trang chủ</a>
+                <a href="products.html" aria-label="Products">Sản phẩm</a>
                 <div class="search-bar">
-                    <input type="text" id="searchInput" placeholder="Tìm kiếm tài liệu..." aria-label="Tìm kiếm sản phẩm" oninput="showSearchSuggestions()">
-                    <div id="searchSuggestions" class="suggestions"></div>
-                    <button onclick="searchProducts()" aria-label="Tìm kiếm">Tìm</button>
+                    <input type="text" id="searchInput" placeholder="Tìm kiếm tài liệu..." aria-label="Search products" oninput="showSearchSuggestions()" onkeydown="handleKeyNavigation(event)">
+                    <div id="searchSuggestions" class="suggestions" role="listbox" aria-label="Search suggestions"></div>
+                    <button onclick="searchProducts()" aria-label="Search"><i class="fas fa-search"></i></button>
                 </div>
                 <div id="userSection">
-                    <a href="#" id="loginBtn" aria-label="Đăng nhập">Đăng nhập</a>
-                    <a href="#" id="registerBtn" aria-label="Đăng ký">Đăng ký</a>
+                    <a href="#" id="loginBtn" onclick="openModal('loginModal')" aria-label="Login">Đăng nhập</a>
+                    <a href="#" id="registerBtn" onclick="openModal('registerModal')" aria-label="Register">Đăng ký</a>
                 </div>
-                <a href="cart.html" id="cartBtn" aria-label="Giỏ hàng">Giỏ hàng (<span id="cartCount">0</span>)</a>
-                <!-- Thêm nút so sánh sản phẩm -->
-                <a href="#" id="compareBtn" onclick="showCompareModal()" aria-label="So sánh sản phẩm">So sánh (<span id="compareCount">0</span>)</a>
+                <a href="cart.html" id="cartBtn" aria-label="Cart">Giỏ hàng (<span id="cartCount">0</span>)</a>
+                <a href="#" id="compareBtn" onclick="showCompareModal()" aria-label="Compare products">So sánh (<span id="compareCount">0</span>)</a>
             </div>
         </nav>
     </header>
 
     <div class="container">
-        <!-- Thêm carousel sản phẩm nổi bật -->
+        <!-- Featured Products Carousel -->
         <section class="carousel-section">
             <h2>Sản phẩm nổi bật</h2>
-            <div class="carousel" id="featuredCarousel"></div>
-            <button class="carousel-prev" onclick="prevCarousel()">❮</button>
-            <button class="carousel-next" onclick="nextCarousel()">❯</button>
+            <div class="carousel" id="carousel" aria-label="Featured products carousel">
+                <div id="featuredCarousel"></div>
+            </div>
+            <button class="carousel-control carousel-prev" onclick="prevCarousel()" aria-label="Previous slide">❮</button>
+            <button class="carousel-control carousel-next" onclick="nextCarousel()" aria-label="Next slide">❯</button>
         </section>
 
-        <!-- Thêm đề xuất cá nhân hóa -->
-        <section id="personalizedRecommendations">
+        <!-- Personalized Recommendations -->
+        <section id="personalizedRecommendations" aria-label="Personalized recommendations">
             <h2>Đề xuất cho bạn</h2>
             <div id="personalizedRecommendationsContent"></div>
         </section>
 
-        <!-- Thêm biểu đồ thống kê sản phẩm -->
+        <!-- Recently Viewed Products -->
+        <section id="recentlyViewed" aria-label="Recently viewed products">
+            <h2>Sản phẩm đã xem gần đây</h2>
+            <div id="recentlyViewedContent"></div>
+        </section>
+
+        <!-- Product Statistics -->
         <section id="productStatistics">
             <h2>Thống kê sản phẩm</h2>
-            <canvas id="productStatsChart"></canvas>
+            <canvas id="productStatsChart" aria-label="Product statistics chart"></canvas>
         </section>
 
         <h2>Tất cả sản phẩm</h2>
         <div class="filters">
-            <select id="categoryFilter" onchange="filterProducts()" aria-label="Lọc theo danh mục">
+            <select id="categoryFilter" onchange="filterProducts()" aria-label="Filter by category">
                 <option value="all">Tất cả danh mục</option>
-                <option value="Lập trình">Lập trình</option>
-                <option value="Báo cáo">Báo cáo</option>
-                <option value="Đồ án">Đồ án</option>
-                <option value="Ôn thi">Ôn thi</option>
-                <option value="Khoa học dữ liệu">Khoa học dữ liệu</option>
+                <!-- Dynamically populated by JavaScript -->
             </select>
-            <select id="sortFilter" onchange="sortProducts()" aria-label="Sắp xếp sản phẩm">
+            <select id="sortFilter" onchange="sortProducts()" aria-label="Sort products">
                 <option value="name-asc">Tên (A-Z)</option>
                 <option value="price-asc">Giá (Thấp - Cao)</option>
                 <option value="price-desc">Giá (Cao - Thấp)</option>
+                <option value="rating-desc">Đánh giá (Cao - Thấp)</option>
             </select>
-            <button onclick="showDiscountedOnly()" aria-label="Chỉ hiển thị giảm giá">Chỉ hiển thị giảm giá</button>
-            <button onclick="resetFilters()" aria-label="Xóa bộ lọc">Xóa bộ lọc</button>
+            <div class="price-range-filter">
+                <label for="priceRange">Lọc theo giá: <span id="priceRangeValue">0 - 200,000 VNĐ</span></label>
+                <input type="range" id="priceRange" min="0" max="200000" value="200000" step="1000" oninput="filterByPriceRange(this.value)" aria-label="Filter by price range">
+            </div>
+            <button onclick="showDiscountedOnly()" aria-label="Show discounted products only">Chỉ hiển thị giảm giá</button>
+            <button onclick="resetFilters()" aria-label="Reset filters">Xóa bộ lọc</button>
         </div>
 
-        <div class="products" id="products"></div>
-        <div class="pagination" id="pagination"></div>
+        <div class="products" id="products" aria-label="Product listings"></div>
+        <div class="pagination" id="pagination" aria-label="Pagination"></div>
     </div>
 
+    <!-- Modals (unchanged except for Product Details Modal to include tags) -->
     <!-- Login Modal -->
     <div id="loginModal" class="modal" role="dialog" aria-labelledby="loginModalLabel">
         <div class="modal-content">
-            <span class="close" onclick="closeModal('loginModal')" aria-label="Đóng">×</span>
+            <span class="close" onclick="closeModal('loginModal')" aria-label="Close">×</span>
             <h2 id="loginModalLabel">Đăng nhập</h2>
             <form id="loginForm">
                 <label for="loginEmail">Email</label>
                 <input type="email" id="loginEmail" placeholder="Email" required aria-label="Email">
                 <label for="loginPassword">Mật khẩu</label>
-                <input type="password" id="loginPassword" placeholder="Mật khẩu" required aria-label="Mật khẩu">
-                <button type="submit" aria-label="Đăng nhập">Đăng nhập</button>
+                <input type="password" id="loginPassword" placeholder="Mật khẩu" required aria-label="Password">
+                <button type="submit" aria-label="Login">Đăng nhập</button>
             </form>
         </div>
     </div>
@@ -93,40 +121,83 @@
     <!-- Register Modal -->
     <div id="registerModal" class="modal" role="dialog" aria-labelledby="registerModalLabel">
         <div class="modal-content">
-            <span class="close" onclick="closeModal('registerModal')" aria-label="Đóng">×</span>
+            <span class="close" onclick="closeModal('registerModal')" aria-label="Close">×</span>
             <h2 id="registerModalLabel">Đăng ký</h2>
             <form id="registerForm">
                 <label for="registerName">Họ và tên</label>
-                <input type="text" id="registerName" placeholder="Họ và tên" required aria-label="Họ và tên">
+                <input type="text" id="registerName" placeholder="Họ và tên" required aria-label="Full name">
                 <label for="registerEmail">Email</label>
                 <input type="email" id="registerEmail" placeholder="Email" required aria-label="Email">
                 <label for="registerPassword">Mật khẩu</label>
-                <input type="password" id="registerPassword" placeholder="Mật khẩu" required aria-label="Mật khẩu">
-                <button type="submit" aria-label="Đăng ký">Đăng ký</button>
+                <input type="password" id="registerPassword" placeholder="Mật khẩu" required aria-label="Password">
+                <button type="submit" aria-label="Register">Đăng ký</button>
             </form>
         </div>
     </div>
 
-    <!-- Review Modal (Cập nhật để hỗ trợ đánh giá sao tương tác) -->
+    <!-- Profile Modal -->
+    <div id="profileModal" class="modal" role="dialog" aria-labelledby="profileModalLabel">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('profileModal')" aria-label="Close">×</span>
+            <h2 id="profileModalLabel">Thông tin tài khoản</h2>
+            <p><strong>Họ và tên:</strong> <span id="profileName"></span></p>
+            <p><strong>Email:</strong> <span id="profileEmail"></span></p>
+            <p><strong>Số dư ví:</strong> <span id="profileWalletBalance"></span> VNĐ</p>
+            <button onclick="openUploadDocumentModal()" aria-label="Upload document">Đăng tài liệu</button>
+            <button onclick="logout()" aria-label="Logout">Đăng xuất</button>
+        </div>
+    </div>
+
+    <!-- Upload Document Modal -->
+    <div id="uploadDocumentModal" class="modal" role="dialog" aria-labelledby="uploadDocumentModalLabel">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('uploadDocumentModal')" aria-label="Close">×</span>
+            <h2 id="uploadDocumentModalLabel">Đăng tài liệu</h2>
+            <form id="uploadDocumentForm">
+                <label for="documentName">Tên tài liệu</label>
+                <input type="text" id="documentName" placeholder="Tên tài liệu" required aria-label="Document name">
+                <label for="documentCategory">Danh mục</label>
+                <select id="documentCategory" required aria-label="Document category">
+                    <!-- Populated by JavaScript -->
+                </select>
+                <label for="documentPrice">Giá (VNĐ)</label>
+                <input type="number" id="documentPrice" placeholder="Giá" required aria-label="Price">
+                <label for="documentDiscount">Giảm giá (%)</label>
+                <input type="number" id="documentDiscount" placeholder="Giảm giá" min="0" max="100" aria-label="Discount">
+                <label for="documentTags">Thẻ (cách nhau bằng dấu phẩy)</label>
+                <input type="text" id="documentTags" placeholder="Ví dụ: Mới, Bán chạy" aria-label="Document tags">
+                <label for="documentDescription">Mô tả</label>
+                <textarea id="documentDescription" placeholder="Mô tả" required aria-label="Description"></textarea>
+                <label for="documentImage">Hình ảnh</label>
+                <input type="file" id="documentImage" accept="image/*" required aria-label="Document image">
+                <div id="imagePreview"></div>
+                <label for="documentFile">File tài liệu</label>
+                <input type="file" id="documentFile" accept=".pdf,.doc,.docx" required aria-label="Document file">
+                <button type="submit" aria-label="Upload document">Đăng tài liệu</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Review Modal -->
     <div id="reviewModal" class="modal" role="dialog" aria-labelledby="reviewModalLabel">
         <div class="modal-content">
-            <span class="close" onclick="closeModal('reviewModal')" aria-label="Đóng">×</span>
+            <span class="close" onclick="closeModal('reviewModal')" aria-label="Close">×</span>
             <h2 id="reviewModalLabel">Thêm đánh giá</h2>
             <form id="reviewForm">
                 <label for="reviewName">Họ và tên</label>
-                <input type="text" id="reviewName" placeholder="Họ và tên" required aria-label="Họ và tên">
+                <input type="text" id="reviewName" placeholder="Họ và tên" required aria-label="Full name">
                 <label for="reviewRating">Đánh giá</label>
-                <div class="star-rating" id="starRating">
-                    <span class="star" data-value="1">★</span>
-                    <span class="star" data-value="2">★</span>
-                    <span class="star" data-value="3">★</span>
-                    <span class="star" data-value="4">★</span>
-                    <span class="star" data-value="5">★</span>
+                <div class="star-rating" id="starRating" role="radiogroup" aria-label="Star rating">
+                    <span class="star" data-value="1" role="radio" aria-checked="false" tabindex="0">★</span>
+                    <span class="star" data-value="2" role="radio" aria-checked="false" tabindex="-1">★</span>
+                    <span class="star" data-value="3" role="radio" aria-checked="false" tabindex="-1">★</span>
+                    <span class="star" data-value="4" role="radio" aria-checked="false" tabindex="-1">★</span>
+                    <span class="star" data-value="5" role="radio" aria-checked="false" tabindex="-1">★</span>
                 </div>
-                <input type="hidden" id="reviewRating" required aria-label="Đánh giá sao">
+                <input type="hidden" id="reviewRating" required aria-label="Rating value">
                 <label for="reviewComment">Bình luận</label>
-                <textarea id="reviewComment" placeholder="Bình luận" required aria-label="Bình luận"></textarea>
-                <button type="submit" aria-label="Gửi đánh giá">Gửi đánh giá</button>
+                <textarea id="reviewComment" placeholder="Nhập bình luận của bạn" required aria-label="Comment"></textarea>
+                <button type="submit" aria-label="Submit review">Gửi đánh giá</button>
             </form>
         </div>
     </div>
@@ -134,28 +205,63 @@
     <!-- All Reviews Modal -->
     <div id="allReviewsModal" class="modal" role="dialog" aria-labelledby="allReviewsModalLabel">
         <div class="modal-content">
-            <span class="close" onclick="closeModal('allReviewsModal')" aria-label="Đóng">×</span>
+            <span class="close" onclick="closeModal('allReviewsModal')" aria-label="Close">×</span>
             <h2 id="allReviewsModalLabel">Tất cả đánh giá</h2>
             <div id="allReviewsContent"></div>
+        </div>
+    </div>
+
+    <!-- Product Details Modal -->
+    <div id="productDetailsModal" class="modal" role="dialog" aria-labelledby="productDetailsModalLabel">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('productDetailsModal')" aria-label="Close">×</span>
+            <h2 id="productDetailsModalLabel">Chi tiết sản phẩm</h2>
+            <div id="productDetailsContent"></div>
         </div>
     </div>
 
     <!-- Compare Modal -->
     <div id="compareModal" class="modal" role="dialog" aria-labelledby="compareModalLabel">
         <div class="modal-content">
-            <span class="close" onclick="closeModal('compareModal')" aria-label="Đóng">×</span>
+            <span class="close" onclick="closeModal('compareModal')" aria-label="Close">×</span>
             <h2 id="compareModalLabel">So sánh sản phẩm</h2>
             <div id="compareContent"></div>
         </div>
     </div>
 
+    <!-- News Modal -->
+    <div id="newsModal" class="modal" role="dialog" aria-labelledby="newsModalLabel">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('newsModal')" aria-label="Close">×</span>
+            <h2 id="newsModalLabel">Tin tức</h2>
+            <div id="newsContent"></div>
+        </div>
+    </div>
+
     <!-- Chat Widget -->
     <div id="chatWidget" class="chat-widget">
-        <button onclick="toggleChat()" aria-label="Mở chat">💬</button>
-        <div id="chatContent" style="display: none;">
-            <div id="chatMessages"></div>
-            <input type="text" id="chatInput" placeholder="Nhập câu hỏi..." aria-label="Nhập câu hỏi">
-            <button onclick="sendChatMessage()" aria-label="Gửi tin nhắn">Gửi</button>
+        <button id="chatToggleBtn" onclick="toggleChat()" aria-label="Open/Close chat">
+            <svg class="chat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v10z" />
+            </svg>
+        </button>
+        <div id="chatContent" class="chat-content">
+            <div class="chat-header">
+                <h3>Chat Hỗ Trợ</h3>
+                <button class="chat-close" onclick="toggleChat()" aria-label="Close chat">×</button>
+            </div>
+            <div id="chatMessages" class="chat-messages">
+                <div class="typing-indicator" id="typingIndicator">Bot đang nhập...</div>
+            </div>
+            <div class="chat-input-container">
+                <input type="text" id="chatInput" placeholder="Nhập câu hỏi..." aria-label="Enter question">
+                <button onclick="sendChatMessage()" aria-label="Send message">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M22 2L11 13" />
+                        <path d="M22 2l-7 20-4-9-9-4 20-7z" />
+                    </svg>
+                </button>
+            </div>
         </div>
     </div>
 
@@ -164,5 +270,6 @@
     </footer>
 
     <script src="./js/script.js"></script>
+    <script src="./js/products.js"></script>
 </body>
 </html>
